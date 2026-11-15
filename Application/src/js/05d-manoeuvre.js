@@ -524,7 +524,7 @@
     R.rateMax = Math.max(turn ? RATES.indexOf(turn.rate) : -1, trans ? Math.max(0, RATES.indexOf(trans.e.rate)) : -1);
     const vertical = Math.abs(endPitch0) === 3, intoVertBad = trans && vertical && Math.abs(p.pitch) !== 3 && (trans.e.rate === "Free" || trans.e.rate === "EZ" || trans.e.steps > 1);
     const halfUp = up1(fvt(fps, 2));
-    let anyInv = false, abandons = 0, used = 0, hTot = 0, vTot = 0, maneuvers = 0, lastFace = false, rvDone = false, freeDone = false;
+    let undo = null, anyInv = false, abandons = 0, used = 0, hTot = 0, vTot = 0, maneuvers = 0, lastFace = false, rvDone = false, freeDone = false;
     let everUpright = !sInv, sameSide = bank === 1 || bank === 2 ? 1 : bank === -1 || bank === -2 ? -1 : 0, posTurns = 0, ngTurns = 0, ngUprightFac = 0, invPosFac = 0;
     const startSide = sameSide;
     const turnTot = { pos: 0, ng: 0 };
@@ -584,7 +584,11 @@
       used += n; hTot += h; vTot += v;
       const rolling = ["rollL", "rollR", "snapL", "snapR"].includes(act);
       if (auto && act !== "fly") lerr("no turns, rolls or maneuvers while " + (stall ? "stalled (4.5.1)" : "in compressibility (4.7)"));
-      if (roll && !rolling) lerr("the roll started must be finished first, or abandoned (5.1)");
+      // 5.1 : un roulis (même reporté) peut être abandonné à tout moment, sauf un snap roll (7.0) ; le roulis partiel doit être
+      //  « défait » (autant de FPs à faire autre chose, ou à rouler en sens inverse) avant un roulis dans l'autre sens
+      const dropRoll = why => { R.notes.push((roll.carried ? "Carried " : "") + (roll.snap ? "snap " : "") + "roll " + roll.dir + " abandoned after " + roll.fps + " FP" + (roll.fps > 1 ? "s" : "") + why + " (5.1): " + roll.fps + " FP" + (roll.fps > 1 ? "s" : "") + " of other actions or of rolling back undo it"); undo = { dir: roll.dir, left: roll.fps }; roll = null; };
+      if (roll && !rolling) { if (roll.snap) lerr("a snap roll may not be abandoned: finish it first (7.0)"); else dropRoll(""); }
+      if (undo && !rolling) { undo.left -= n; if (undo.left <= 0) undo = null; }
       if (slip && !slip.ready && !["slipL", "slipR", "skid", "skidturn"].includes(act)) { R.notes.push((slip.carried ? "Carried " : "") + "slip / skid set-up abandoned (5.4)"); slip = null; }
       if (turn && !["turn", "ngturn", "rv", "free"].includes(act) && !rolling) abandonTurn("");
       let txt = "";
@@ -593,7 +597,13 @@
         const sameSideRoll = target !== 0 && target !== 3 && Math.sign(target) === Math.sign(bank) && bank !== 3;
         if (turn && !(sameSideRoll && !snap && !turn.ng && turn.dir === bankDir())) abandonTurn(target === 0 || target === 3 ? "rolling toward " + BANKS[target] : "rolled");
         else if (turn) turn.prog += n;                            // 5.2 : roulis entre LB et IL (ou RB et IR) compté pour le virage
-        if (roll && roll.dir !== dir) lerr("a roll to the " + (roll.dir === "L" ? "left" : "right") + " is in progress");
+        if (roll && roll.dir !== dir) { if (roll.snap) lerr("a snap roll to the " + (roll.dir === "L" ? "left" : "right") + " is in progress: it may not be abandoned (7.0)"); else dropRoll(", rolling back"); }
+        // roulis en sens inverse d'un roulis abandonné : ses premiers FPs le défont
+        let nr = n, undoTxt = "";
+        if (!roll && undo && undo.dir !== dir) { const u = Math.min(nr, undo.left); undo.left -= u; nr -= u; undoTxt = "undo R" + undo.dir + " " + u + " FP" + (u > 1 ? "s" : ""); if (undo.left <= 0) undo = null; }
+        else if (!roll && undo && undo.dir === dir) undo = null;
+        if (roll && roll.dir !== dir) { /* snap roll en cours : erreur déjà signalée */ }
+        else if (!nr) txt = undoTxt;
         else {
           if (!roll) {
             roll = { dir, snap, fps: 0, h: 0, v: 0, start: before };
@@ -607,10 +617,10 @@
             }
           } else if (snap !== roll.snap) lerr("a roll started may not be changed into a snap roll (7.0)");
           const need = Math.max(1, bankNeed(p, s, roll.dir) - (roll.snap ? 1 : 0));
-          roll.fps += n; roll.h += h; roll.v += v;
+          roll.fps += nr; roll.h += Math.min(h, nr); roll.v += Math.max(0, nr - h);
           if (roll.fps > need) lerr("the roll needs " + need + " FP" + (need > 1 ? "s" : "") + " (Banking FPs" + (roll.snap ? " − 1, snap roll" : "") + "): put the other FPs on another line");
           const done = roll.fps >= need;
-          txt = (roll.snap ? "S" : "") + "R" + roll.dir + " " + Math.min(roll.fps, need) + "/" + need;
+          txt = (undoTxt ? undoTxt + ", " : "") + (roll.snap ? "S" : "") + "R" + roll.dir + " " + Math.min(roll.fps, need) + "/" + need;
           if (done) {
             const b0 = bank; bank = norm6(bank + sideOf(roll.dir)); txt += " to " + BANKS[bank];
             // roll vertical (5.3) : en vertical, le roulis change le facing (montée : sens opposé au roulis ; piqué : même sens)
@@ -658,7 +668,7 @@
           txt = (isNG ? "NG " : "") + rate + " " + Math.min(turn.prog, Math.max(req, turn.prog)) + "/" + req;
           if (fac) {
             const maxFac = E.deg ? E.deg / 30 : 1;
-            if (turn.prog < req) lerr(rate + " at speed " + fmt1(chartS) + " needs " + req + " FP" + (req > 1 ? "s" : "") + " before the facing change (" + turn.prog + " so far, 5.2)");
+            if (turn.prog < req) txt += " — turn in progress, facing after " + req + " FP" + (req > 1 ? "s" : "") + " (carried if the move ends, 5.2)";
             else if (fac > maxFac) lerr(E.deg ? "at most " + E.deg + "° per FP at this rate and speed (5.2)" : "one 30° facing per " + req + " FP" + (req > 1 ? "s" : "") + ": put the next one on another line (5.2)");
             else {
               for (let k = 1; k < fac; k++) { addD(dd, key, dtxt + ", extra 30° (4.2)"); turnTot[isNG ? "ng" : "pos"] += dd; }

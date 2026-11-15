@@ -111,6 +111,12 @@ gros canons, roquettes, tir défensif des autres bombardiers, lecture des autres
   par la page. Vrille : chute (n × mini listée + D5) × 100 ft ; sortie % ≤ 50 → STD ou VD (mv.rec), LV, mini ajustée + 0.5.
   Piqué dangereux % ≥ 95 (ddMods, report « DDn ») ; compressibilité % ≥ 60, sortie ≤ 50 (« COMPn ») ; overstress % ≥ 95 → D10 longeron /
   queue, black / red out % ≥ 95 par membre d'équipage (« GLOCn ») : à « Apply ». Charge p.load : mini +0.5 / +1, maxi et piqué −0.5 / −1.
+- Reports (corrigés le 15/11/2026, après un coup refusé de l'utilisateur : A6M3 #2, trois lignes BT dont la dernière à 2 FPs sur 3) :
+  une ligne de virage qui n'atteint pas les FPs du Turn Chart n'est plus une erreur, même avec « 30° » choisi : virage en cours,
+  reporté en fin de mouvement (« 2BTL ») ou perdu (abandonné) si une autre action suit. Roulis : peut être abandonné à tout moment
+  (5.1), même reporté ; ses FPs doivent être « défaits » (autres actions ou roulis en sens inverse, undo) avant un roulis dans l'autre
+  sens ; un snap roll ne peut pas être abandonné (7.0). Vérifié : virage reporté puis terminé ou abandonné, roulis reporté terminé,
+  abandonné, défait en roulant en sens inverse, snap reporté, slip et skid reportés puis exécutés.
 - Pas fait : hammerhead, flaps, volets de piqué, turn stall (la page refuse le coup illégal), vol au hasard (GLOC : avertissement
   seulement), +1 bank / slip des avions chargés sous les ailes, MC « continu », HFP de slip perdant 100 ft.
 - Vérifié le 15/11/2026 (navigateur, JS) : 23 avions sans erreur ; pull HT 2 du F4U #4 (STC → ISTC, RV après le FP 5, decel EZ à 8.0) ;
