@@ -1,0 +1,360 @@
+<div class="app">
+  <div class="view" id="view">
+    <div class="camera-bar" role="group" aria-label="Camera">
+      <button id="camAll" type="button">Overview</button>
+      <button id="cam3d" type="button">3D view</button>
+      <button id="camTop" type="button">Top</button>
+      <button id="camFollow" type="button">Center</button>
+      <select id="camModel" aria-label="Aircraft models" title="Aircraft shown as Minibox (from the data card drawings) or as Vassal counters">
+        <option value="box">Models: Minibox</option><option value="counter">Models: counters</option>
+      </select>
+    </div>
+    <div class="hint" id="mapHint">Click: select · drag: orbit · right-drag: pan · wheel: zoom</div>
+  </div>
+
+  <aside class="panel">
+    <header>
+      <p class="eyebrow">Fighting Wings ·<span id="turnName"></span> <button type="button" class="rulebtn" id="readableBtn" title="Larger, more widely spaced text with clearer digits (kept in this browser)">Readable text: off</button></p>
+      <h1>Flight Table</h1>
+    </header>
+
+    <!-- onglets en groupes : consultation, préparation (le tour viendra avec le mouvement et le combat) -->
+    <nav class="tabs" role="tablist" aria-label="Tabs">
+      <div class="tabgrp"><span class="tabgrp-l">Turn</span>
+        <button type="button" role="tab" id="tabbtn-init" aria-controls="tab-init" aria-selected="false">Initiative</button>
+        <button type="button" role="tab" id="tabbtn-mv" aria-controls="tab-mv" aria-selected="false">Maneuver</button>
+        <button type="button" role="tab" id="tabbtn-cb" aria-controls="tab-cb" aria-selected="false">Combat</button>
+        <button type="button" role="tab" id="tabbtn-log" aria-controls="tab-log" aria-selected="false">Log</button></div>
+      <div class="tabgrp"><span class="tabgrp-l">Look up</span>
+        <button type="button" role="tab" id="tabbtn-adc" aria-controls="tab-adc" aria-selected="false">ADC</button></div>
+      <div class="tabgrp"><span class="tabgrp-l">Set up</span>
+        <button type="button" role="tab" id="tabbtn-scen" aria-controls="tab-scen" aria-selected="false">Scenario</button>
+        <button type="button" role="tab" id="tabbtn-acft" aria-controls="tab-acft" aria-selected="true">Aircraft</button>
+        <button type="button" role="tab" id="tabbtn-game" aria-controls="tab-game" aria-selected="false">Game</button>
+        <button type="button" role="tab" id="tabbtn-map" aria-controls="tab-map" aria-selected="false">Map</button></div>
+    </nav>
+    <!-- barre multijoueur (PBEM) : étape du tour, qui joue, boutons de l'étape -->
+    <div class="mpbar" id="mpBar" hidden></div>
+    <input type="file" id="mpOrdersFile" accept=".json,application/json" multiple hidden>
+    <!-- sélection de l'avion, visible dans les onglets de consultation et la carte -->
+    <div class="acbar" role="group" aria-label="Selected aircraft">
+      <button type="button" class="acnav" id="acPrev" title="Previous aircraft">◀</button>
+      <div class="acchips" id="acChips"></div>
+      <button type="button" class="acnav" id="acNext" title="Next aircraft">▶</button>
+    </div>
+    <p class="who" id="who"></p>
+
+    <!-- ===================== Initiative (3.1, 8.4, 8.5, 8.7) ===================== -->
+    <div class="tabpanel" id="tab-init" role="tabpanel" aria-labelledby="tabbtn-init" hidden>
+      <section aria-labelledby="inTitle">
+        <h2 id="inTitle"><span id="inTurn"></span> — declarations</h2>
+        <p class="note">Before rolling: declare tailing (8.1.1; ✓ = the simple or the deflection test is met now) and check the formations (8.5; leader and
+          formation type in the Aircraft tab). Fixed formation members move with their leader (class X); a flexible wingman in formation may use his leader's
+          initiative if it is higher (« follow »).</p>
+        <div class="table-wrap"><table><thead><tr><th>Aircraft</th><th>Class</th><th>Pilot</th><th>Tails</th><th>Formation</th></tr></thead><tbody id="inDecl"></tbody></table></div>
+        <div class="form" style="margin-top:12px">
+          <label for="inBoost-blue">Enemy kill bonus (8.1)</label>
+          <div class="inl"><small>Blue +2 until turn</small><input id="inBoost-blue" type="number" min="0" step="1" class="short"><small>Red +2 until turn</small><input id="inBoost-red" type="number" min="0" step="1" class="short"></div>
+        </div>
+      </section>
+      <section aria-labelledby="inoTitle">
+        <h2 id="inoTitle">Order of movement</h2>
+        <div class="actions" style="margin-top:0"><button type="button" id="inRoll">Roll initiative</button></div>
+        <div class="table-wrap" style="margin-top:8px"><table><thead><tr><th>#</th><th>Aircraft</th><th>Class</th><th>D10 + pilot = initiative</th><th>Note</th><th></th></tr></thead><tbody id="inOrder"></tbody></table></div>
+        <p class="note" id="inSides" style="margin-top:6px"></p>
+        <p class="note" style="margin-top:6px">Lowest initiative moves first; ties are rolled again without modifiers (8.1). Order (8.1): X (fixed formations, side by side), H, M
+          (side by side, lower side roll first), then F and L by load: overloaded F and L, loaded L, then normal L and normal or loaded F; unsighted aircraft last (8.1.2).
+          U (out of control) aircraft move first in their class. A tailing aircraft or a wingman moves just after the aircraft it follows, in rank order.
+          Modifiers: Recruit −4, Green −2, Veteran / Ace / Hero +1 each, immediate leader a Hero +1 (in formation), severely damaged −1, oil on canopy −2,
+          each own Hero or Ace shot down −1, enemy shot down in the last 2 turns +2.</p>
+      </section>
+    </div>
+
+    <!-- ===================== Maneuver : le tour de l'avion sélectionné (4.0 à 6.2) ===================== -->
+    <div class="tabpanel" id="tab-mv" role="tabpanel" aria-labelledby="tabbtn-mv" hidden>
+      <section aria-labelledby="mvTitle">
+        <div class="actions" style="margin-top:0;justify-content:space-between;align-items:center"><h2 id="mvTitle" style="margin:0"><span id="mvTurn"></span></h2>
+          <button type="button" id="mvNextTurn" title="All aircraft moved: next game turn">Next game turn</button></div>
+        <p class="lines" id="mvStart" style="margin-top:8px"></p>
+        <p class="note" id="mvInfo" style="margin-top:8px"></p>
+        <div class="mvtop">
+          <label>Power <select id="mvPower"></select></label>
+          <label title="Flight attitude transition (FATT, 6.1): pull = nose up for the pilot, push = nose down">Transition <select id="mvPitch"></select></label>
+          <label title="Optional altitude change at the end of the move (OC, 6.1.3)">OC <select id="mvOc"></select></label>
+          <label title="Optional reverse (6.4) or free HFP of pure vertical flight (6.2) at the end of the move">End of move <select id="mvEndM"></select></label>
+        </div>
+        <div class="mvtop" id="mvExtra" hidden></div>
+      </section>
+      <section aria-labelledby="mvlTitle">
+        <div id="mvOoc"></div>
+        <h2 id="mvlTitle">Flight points <small>(one line per maneuver; HFPs then VFPs; the facing change is made at the end of the line)</small></h2>
+        <div id="mvAuto" hidden></div>
+        <div id="mvLinesWrap">
+        <div class="table-wrap"><table class="mvsegs"><thead><tr><th>#</th><th>HFP</th><th>VFP</th><th>Action</th><th>Facing</th><th>Notation and result</th><th></th></tr></thead>
+          <tbody id="mvLines"></tbody></table></div>
+        <p class="note" id="mvNoLines" style="margin-top:8px">No line yet: click « Add line ». The first line gets all the FPs; split them into several lines to roll, turn or slip.</p>
+        <div class="actions"><button type="button" id="mvAdd">Add line</button><button type="button" id="mvClear">Clear the move</button></div>
+        </div>
+        <div id="mvMsgs" style="margin-top:10px"></div>
+      </section>
+      <section aria-labelledby="mvadTitle">
+        <h2 id="mvadTitle">Accel and decel</h2>
+        <div class="table-wrap"><table class="adct mvad"><tbody id="mvAD"></tbody></table></div>
+        <p class="note" style="margin-top:8px">5 points = 0.5 of speed; less than 5 left over is carried to the next turn (4.3). Abbreviations: p power, c carry, d dive,
+          da dive accel (ADC), cl climb, ca climb decel (ADC), pt / pu pull / push transition, tc transition decel credit, ez tt ht bt et turns (nez … NG turns),
+          ss sk st slip / skid / skid with facing, sn snap roll, os / iovs excess speed, inv inverted level flight, db dive brakes.</p>
+      </section>
+    </div>
+
+    <!-- ===================== Combat : armes fixes (7.0 à 8.7) ===================== -->
+    <div class="tabpanel" id="tab-cb" role="tabpanel" aria-labelledby="tabbtn-cb" hidden>
+      <section aria-labelledby="cbTitle">
+        <h2 id="cbTitle">Gun attack by <span id="cbWho"></span></h2>
+        <p class="note" id="cbState"></p>
+        <div class="form" style="margin-top:8px">
+          <label for="cbTgt">Target</label><select id="cbTgt"></select>
+          <label>Gun groups</label><div class="ammo" id="cbGuns"></div>
+        </div>
+      </section>
+      <section aria-labelledby="cbmTitle">
+        <h2 id="cbmTitle">Shooter's move this turn <small id="cbMvNote"></small></h2>
+        <div class="form">
+          <label for="cbFof">Horizontal field of fire</label><select id="cbFof" class="short"><option value="">Not turning</option><option value="L">Turning left</option><option value="R">Turning right</option></select>
+          <label for="cbRate">Highest rate used or carried</label><select id="cbRate" class="short"><option value="-1">EZ or none</option><option value="1">TT (+0; M / H +10)</option><option value="2">HT (+10; M / H +20)</option><option value="3">BT (+20; M / H +30)</option></select>
+          <label for="cbSlip">Slip or skid</label><select id="cbSlip" class="short"><option value="">None</option><option value="slip">Slip (+15)</option><option value="skid">Skid (+30)</option></select>
+          <label for="cbSnaps">Snap rolls</label><input id="cbSnaps" type="number" min="0" step="1" class="short">
+        </div>
+      </section>
+      <section aria-labelledby="cbsTitle">
+        <h2 id="cbsTitle">Shot</h2>
+        <div class="form">
+          <label>Bonuses</label><div class="inl" style="flex-wrap:wrap">
+            <label title="10.1: one column right"><input type="checkbox" id="cbTs"> Tracking shot</label>
+            <select id="cbBurst" class="short" title="10.1: half burst = 2 columns left (crack shot 1), 0.5 ammo; long burst = 1 column right, 2 ammo, jam on 85+">
+              <option value="normal">Normal burst (1 ammo)</option><option value="half">Half burst (0.5 ammo, −2 col.)</option><option value="long">Long burst (2 ammo, +1 col.)</option></select>
+            <label id="cbOvrRow" title="Moved on paper: the page cannot check the field of fire FP by FP"><input type="checkbox" id="cbOvr"> checked on paper</label></div>
+          <label></label><small class="note" id="cbLbNote"></small>
+          <label for="cbTail">Range 0</label><div class="inl"><input type="checkbox" id="cbTail"><small>the shooter tails the target (no collision check, 8.6.2)</small></div>
+          <label id="cbCrackRow" for="cbCrack">Crack shot</label><div class="inl"><select id="cbCrack" class="short"><option value="0">area roll as rolled</option><option value="-1">area roll −1</option><option value="1">area roll +1</option></select>
+            <select id="cbArea" class="short" aria-label="Double crack shot: chosen area"><option value="">area: roll</option><option>Engine</option><option>Fuel tanks</option><option>Cockpit</option><option>Wings</option><option>Equipment</option><option>Flight controls</option></select></div>
+        </div>
+        <pre class="lines pbem" id="cbPreview" style="margin-top:10px"></pre>
+        <div id="cbErrs"></div>
+        <div class="actions"><button type="button" id="cbFire">Fire (%)</button><button type="button" id="cbDeclare" hidden title="Multiplayer: the referee resolves the declared attacks in the Combat Phase">Declare attack</button>
+          <button type="button" id="cbUndecl" hidden>Cancel declaration</button><span class="msg" id="cbChance"></span></div>
+        <p class="note" id="cbDecl"></p>
+        <pre class="lines pbem" id="cbResult" style="margin-top:8px"></pre>
+      </section>
+      <section aria-labelledby="cbjTitle" id="cbStoreSec">
+        <h2 id="cbjTitle">Stores <small>(12.0; jettisoned in the Combat Phase, after the air-to-air attacks)</small></h2>
+        <p class="note" id="cbStore"></p>
+        <div class="actions"><button type="button" id="cbJett">Jettison stores</button><button type="button" id="cbJettDecl" hidden>Declare jettison</button></div>
+      </section>
+      <section aria-labelledby="cbdTitle" id="cbDefSec">
+        <h2 id="cbdTitle">Defensive fire <small>(10.5; resolved before the fixed gun attacks)</small></h2>
+        <div class="form">
+          <label for="cbDTgt">Target</label><select id="cbDTgt"></select>
+          <label>Gunners</label><div class="ammo" id="cbDGuns"></div>
+        </div>
+        <pre class="lines pbem" id="cbDPreview" style="margin-top:10px"></pre>
+        <div id="cbDErrs"></div>
+        <div class="actions"><button type="button" id="cbDFire">Defensive fire (%)</button><button type="button" id="cbDDecl" hidden title="Multiplayer: the referee resolves it in the Combat Phase, before the fixed gun attacks">Declare defensive fire</button><span class="msg" id="cbDChance"></span></div>
+        <p class="note" id="cbDDeclTxt"></p>
+        <pre class="lines pbem" id="cbDResult" style="margin-top:8px"></pre>
+      </section>
+      <section aria-labelledby="cbtTitle">
+        <h2 id="cbtTitle">Shots this turn</h2>
+        <pre class="lines pbem" id="cbShots"></pre>
+        <div class="actions"><button type="button" id="cbCopy">Copy the shots</button></div>
+      </section>
+      <section aria-labelledby="cbeTitle">
+        <h2 id="cbeTitle">End of turn checks <small>(fires, leaks, gun recharge, collisions)</small></h2>
+        <div id="cbChecks"></div>
+      </section>
+    </div>
+
+    <!-- ===================== Log : coups au format PBEM ===================== -->
+    <div class="tabpanel" id="tab-log" role="tabpanel" aria-labelledby="tabbtn-log" hidden>
+      <section aria-labelledby="logTitle">
+        <h2 id="logTitle">This turn <small id="logWho"></small></h2>
+        <pre class="lines pbem" id="logCur"></pre>
+        <div class="actions"><button type="button" id="logCopy">Copy this turn</button></div>
+      </section>
+      <section aria-labelledby="logpTitle">
+        <h2 id="logpTitle">Previous turns</h2>
+        <pre class="lines pbem" id="logPast"></pre>
+        <div class="actions"><button type="button" id="logCopyAll">Copy previous turns</button></div>
+      </section>
+    </div>
+
+    <!-- ===================== Aircraft ===================== -->
+    <div class="tabpanel" id="tab-acft" role="tabpanel" aria-labelledby="tabbtn-acft">
+      <section aria-labelledby="rosTitle">
+        <h2 id="rosTitle">Aircraft in play</h2>
+        <div class="table-wrap">
+          <table><thead><tr><th>Aircraft</th><th>Hex</th><th>Hdg</th><th>Alt</th><th>Speed</th><th>Pitch</th><th>Bank</th><th>Pilot</th><th title="Horizontal range from the selected aircraft, in hexes">Range</th></tr></thead>
+            <tbody id="roster"></tbody></table>
+        </div>
+        <div class="actions"><button type="button" id="delPlane">Remove selected</button></div>
+        <div class="form" style="margin-top:12px">
+          <label for="newType">Data card</label><select id="newType"></select>
+          <label for="newSide">Side</label><select id="newSide"><option value="blue">Blue</option><option value="red">Red</option></select>
+        </div>
+        <div class="actions"><button type="button" id="addPlane">Add aircraft</button></div>
+      </section>
+
+      <section aria-labelledby="selTitle">
+        <h2 id="selTitle">Selected aircraft</h2>
+        <div class="ident">
+          <input id="sName" aria-label="Callsign" autocomplete="off">
+          <button type="button" class="chip" id="sSide" title="Change side"></button>
+        </div>
+        <div class="form" style="margin-top:8px">
+          <label for="sAdc">Data card</label><select id="sAdc"></select>
+          <label for="sCtr">Counter</label><select id="sCtr"></select>
+          <label for="sVar">Data card variant</label><div class="inl"><input type="checkbox" id="sVar"><small>use the numbers in ( ) of the card (variant given in its notes, e.g. I-16 with M-25A engine)</small></div>
+          <label for="sPq">Pilot quality</label>
+          <div class="inl"><select id="sPq" class="short"><option>Recruit</option><option>Green</option><option>Regular</option><option>Veteran</option></select>
+            <label title="Ace: +1 initiative, −10 to gun shots (8.1)"><input type="checkbox" id="sAce"> Ace</label>
+            <label title="Hero: +1 initiative, −05 to gun shots (8.1)"><input type="checkbox" id="sHero"> Hero</label>
+            <select id="sCrack" class="short" aria-label="Crack shot" title="Crack shot pilots (8.1.3)"><option value="0">No crack shot</option><option value="1">Crack shot</option><option value="2">Double crack shot</option></select></div>
+          <label for="sLead">Formation leader</label><div class="inl"><select id="sLead"></select>
+            <select id="sForm" class="short" title="Formation type led by this aircraft (8.5); wingmen and junior leaders take the type of their leader"><option value="">type: as my leader (flexible)</option><option value="flexible">leads a flexible formation</option><option value="fixed">leads a fixed formation</option></select>
+            <label title="No radio (8.5.2): flexible wingmen need the fixed 3-3-3 parameters to use the leader's initiative"><input type="checkbox" id="sNoRadio"> no radio</label></div>
+          <label>Critical hits</label><div class="inl"><small id="sCrits"></small><button type="button" class="mini" id="sStatus"></button></div>
+          <label for="sNotes">Notes</label><input id="sNotes" autocomplete="off" placeholder="e.g. leader, M-25A engine">
+        </div>
+        <dl class="attitude">
+          <div class="wide"><dt><label for="sLine">Position line — edit and press Enter to place the aircraft</label></dt>
+            <dd class="line"><input id="sLine" class="lineinput" autocomplete="off" spellcheck="false"><span class="msg" id="sLineMsg" role="status"></span></dd></div>
+        </dl>
+        <p class="note" style="margin-top:8px">PBEM format: <code>Aircraft, Hex, Heading, Altitude, Speed, Bank, Carry, Pitch, [Maneuvers]</code>,
+          e.g. <code>I-16 Type 5 #1, 3237, NW, 9.8, 4.5, LB, +0.0, DV, [ ]</code>. Altitude in thousands.hundreds (9.8 = 9,800 ft);
+          a speed ending with <code>+</code> carries a half FP (4.2.1); carry = accel (+) or decel (−) carried (6.1.2).
+          On a hex side: <code>2922/3023</code> (the counter must be parallel to the side, 2.7). Pitch: LVL, CL, STC, VC, DV, STD, VD (SHC, SHD accepted). Bank: LV, LB, RB.</p>
+      </section>
+
+      <section aria-labelledby="pasteTitle">
+        <h2 id="pasteTitle"><label for="fImport">Paste position lines</label> <small>(one per aircraft, known callsigns, to place several aircraft)</small></h2>
+        <textarea class="import" id="fImport" rows="3" spellcheck="false"></textarea>
+        <div class="actions"><button type="button" id="applyImport">Apply</button><span class="msg" id="importMsg" role="status"></span></div>
+      </section>
+
+      <section aria-labelledby="linesTitle">
+        <h2 id="linesTitle">Position lines</h2>
+        <pre class="lines" id="lines"></pre>
+        <div class="actions"><button type="button" id="copyLines">Copy lines</button></div>
+        <p class="note" style="margin-top:8px">Placement with the mouse: double-click a hex on the map (Map tab); near a hex side, the counter goes on that hex side.</p>
+      </section>
+    </div>
+
+    <!-- ===================== ADC ===================== -->
+    <div class="tabpanel" id="tab-adc" role="tabpanel" aria-labelledby="tabbtn-adc" hidden>
+      <p class="note">Data card of <b id="adcWho"></b>: the line of its current altitude band and the column of its current speed are highlighted.</p>
+      <div id="adcBody" class="tabpanel"></div>
+    </div>
+
+    <!-- ===================== Scenario ===================== -->
+    <div class="tabpanel" id="tab-scen" role="tabpanel" aria-labelledby="tabbtn-scen" hidden>
+      <section aria-labelledby="scTitle">
+        <h2 id="scTitle">Scenario</h2>
+        <div class="form">
+          <label for="scName">Name</label><input id="scName" autocomplete="off">
+          <label for="scLen">Game length</label><div class="inl"><input id="scLen" type="number" min="0" step="1" class="short"><small>turns (11.1: 20 turns as standard)</small></div>
+          <label for="scNotes">Special rules</label><textarea id="scNotes" class="import" rows="4" spellcheck="false"></textarea>
+        </div>
+      </section>
+      <section aria-labelledby="formTitle">
+        <h2 id="formTitle">Formations (8.5)</h2>
+        <p class="note">Set in the Aircraft tab: each aircraft's formation leader, and on the leaders the formation type (fixed or flexible).
+          Fixed: wingmen stacked with the leader, or on / behind his 03:00 or 09:00 line within 2 hexes, 100 ft and 30° (2-1-3); junior flight leaders 3-3-3 from
+          a more senior leader (300 ft, at most 100 ft per hex away). Flexible: wingmen on / behind the 03:00 or 09:00 line within 6 hexes, 600 ft and 60° (same hex:
+          300 ft and 30°, 6-6-6); junior flight leaders 9-9-9 from the squadron leader, not in his hex. Fixed formation limits: slips only, TT rate or less
+          (EZ for H and M), upright level or shallow attitudes; else out of formation this turn and the next (a leader's flight becomes flexible for good).</p>
+      </section>
+      <section aria-labelledby="mapSetTitle">
+        <h2 id="mapSetTitle">Map</h2>
+        <div class="form">
+          <label for="scBoard">Map</label><div class="inl"><select id="scBoard" class="short"></select><small id="scBoardNote"></small></div>
+          <label for="scNorth">North points</label><select id="scNorth"></select>
+          <label for="scBase">Map base altitude</label>
+          <div class="inl"><input id="scBase" type="number" step="100" min="0" class="short"><small>ft — the map is drawn at this altitude; aircraft stands start from it</small></div>
+        </div>
+        <p class="note" style="margin-top:8px">Rule 3.1: 12 facings, 30° apart, each pointing to a hex side or a hex juncture; on a hex side the counter must be parallel to it.
+          The Blue map (Vassal « Blue N is UP ») is shown with north up: hex numbers grow northwards (first two digits) and eastwards (last two).
+          1 hex = 100 yards, 1 game turn = 4 seconds (1.3, 1.5).</p>
+      </section>
+    </div>
+
+    <!-- ===================== Game ===================== -->
+    <div class="tabpanel" id="tab-game" role="tabpanel" aria-labelledby="tabbtn-game" hidden>
+      <section aria-labelledby="gtTitle">
+        <h2 id="gtTitle">Game turn</h2>
+        <div class="actions" style="margin-top:0;align-items:center"><button type="button" id="gmPrev" aria-label="Previous turn">◀</button><strong class="turnno" id="gmTurn"></strong><button type="button" id="gmNext" aria-label="Next turn">▶</button></div>
+      </section>
+      <section aria-labelledby="vpTitle">
+        <h2 id="vpTitle">Victory points <small>(so far)</small></h2>
+        <div id="vpBox"></div>
+      </section>
+      <section aria-labelledby="manTitle">
+        <h2 id="manTitle">Manuals</h2>
+        <p class="note"><a href="Manuals/Player%20manual.html" target="_blank" rel="noopener">Player manual</a> · <a href="Manuals/Referee%20manual.html" target="_blank" rel="noopener">Referee manual</a>
+          — what to do in each phase of a multiplayer game (folder <code>Manuals</code> next to the page).</p>
+      </section>
+      <section aria-labelledby="mpTitle">
+        <h2 id="mpTitle">Multiplayer (PBEM)</h2>
+        <div class="form">
+          <label for="mpOn">Multiplayer game</label><div class="inl"><input type="checkbox" id="mpOn"><small>a referee and players exchanging files</small></div>
+        </div>
+        <div id="mpSetup" class="form" style="margin-top:8px">
+          <label for="mpPlayers">Players</label><input id="mpPlayers" placeholder="names, separated by commas (referee included)">
+          <label for="mpRef">Referee</label><select id="mpRef"></select>
+          <label for="mpMe">This copy is played by</label><select id="mpMe"></select>
+          <label>Flown by</label><div class="inl" id="mpOwners" style="flex-wrap:wrap"></div>
+        </div>
+        <p class="note" style="margin-top:8px">Each turn: each player sends his initiative declarations (tailing, wingmen) to the referee; the referee rolls the
+          initiative and sends the game file; the file then goes from player to player in the order of movement (each plots his aircraft's move and may declare its attack),
+          and back to the referee, who may ask for combat orders, resolves the attacks and the end of turn checks, and starts the next turn.
+          Save (export) the game file at the end of each phase and keep every file received and sent.</p>
+      </section>
+      <section aria-labelledby="dcTitle">
+        <h2 id="dcTitle">Dice rolls <small>(every roll of the game, kept in the game file)</small></h2>
+        <div class="actions" style="margin-top:0"><select id="dcSel" aria-label="Turn shown"></select><button type="button" id="dcCopy">Copy</button></div>
+        <pre class="lines pbem" id="dcText" style="margin-top:8px"></pre>
+      </section>
+      <section aria-labelledby="scnTitle">
+        <h2 id="scnTitle">Scenarios</h2>
+        <div class="actions" style="margin-top:0"><select id="gmScen" aria-label="Scenario"></select><button type="button" id="gmScenGo">Start scenario</button></div>
+        <p class="note" style="margin-top:8px">Scenarios are the game files of the <code>scenarios</code> folder, included in the page when it is built. Starting one replaces the current game.</p>
+      </section>
+      <section aria-labelledby="gmTitle">
+        <h2 id="gmTitle">Saved game</h2>
+        <p class="note">The game is kept in this browser, one game per folder of the page. Export it to a file to keep it, move it to another computer or send it.</p>
+        <div class="actions">
+          <button type="button" id="gmExport">Export game file</button>
+          <button type="button" id="gmImport">Import game file…</button>
+          <input type="file" id="gmFile" accept=".json,application/json" hidden>
+          <button type="button" id="gmNew">New game…</button>
+          <span class="msg" id="gmMsg" role="status"></span>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================== Map ===================== -->
+    <div class="tabpanel" id="tab-map" role="tabpanel" aria-labelledby="tabbtn-map" hidden>
+      <section aria-labelledby="mapTitle">
+        <h2 id="mapTitle">Aircraft</h2>
+        <div class="table-wrap">
+          <table><thead><tr><th>Aircraft</th><th>Hex</th><th>Alt</th></tr></thead><tbody id="mapRoster"></tbody></table>
+        </div>
+        <p class="note" style="margin-top:10px">Double-click a hex: place the selected aircraft there (near a hex side: on the hex side).
+          Arrow keys: move the view (Shift: faster).</p>
+      </section>
+    </div>
+    <!-- ligne de fin et fin du tour : collée en bas du panneau (onglet Maneuver) -->
+    <div class="endbar" id="endBar" hidden>
+      <div class="endspeed"><span>End Line</span><strong id="pfEnd"></strong></div>
+      <div class="actions"><button type="button" id="pfApply">Apply end of turn</button><button type="button" id="pfUndo" disabled>Undo apply</button></div>
+    </div>
+  </aside>
+</div>

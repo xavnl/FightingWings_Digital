@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fighting Wings Player Manual</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<p class="eyebrow">Fighting Wings · Flight Table</p>
+<h1>Player manual</h1>
+<p class="lede">How to fly your aircraft with the page in a multiplayer (play by email) game: which tab to open, which button to press, which file to send to whom.
+The game rules are those of the Fighting Wings rule book (third edition) and its play aids; the page applies them and shows the rule numbers.</p>
+
+<nav class="toc" aria-label="Contents">
+  <a href="#start">Before the first turn</a><a href="#bar">The multiplayer bar</a><a href="#turn">A game turn</a><a href="#dec">1. Initiative declarations</a>
+  <a href="#mph">2. Your move</a><a href="#cb">3. Your attacks</a><a href="#tips">Good to know</a>
+</nav>
+
+<h2 id="start">Before the first turn</h2>
+<ol>
+  <li>Open <code>flight-table.html</code> in Chrome, Edge or Firefox (double-click). Keep the folders <code>maps</code>, <code>counters</code> and <code>boxes</code> next to it.</li>
+  <li>The page keeps the game in your browser, one game per folder: always open the page from the same folder.</li>
+  <li>When the referee's first game file arrives, click <b class="btn">Import game file…</b> (bar under the tabs, or <b>Game</b> tab) and choose it.</li>
+  <li>In <b>Game › Multiplayer (PBEM)</b>, set <b>This copy is played by</b> to your name. Everything else (players, referee, who flies which aircraft) is set by the referee and comes with the game file.</li>
+</ol>
+<p>You can change only your own aircraft, and move it only when it is its turn. The referee's buttons are hidden.</p>
+
+<h2 id="bar">The multiplayer bar</h2>
+<p>The bar under the tabs always shows the game turn, the current step and what you have to do, with the buttons you need now.
+Each time the page makes a file (your orders, the game file), the browser saves it in your Downloads folder. Send it by email to the person named in the file name.</p>
+<table>
+  <thead><tr><th>Step</th><th>You receive</th><th>You do</th><th>You send</th></tr></thead>
+  <tbody>
+    <tr><td>Initiative declarations</td><td>the game file from the referee</td><td>tailing and formation choices of your aircraft (Initiative tab)</td><td>your <b>declarations</b> file to the referee</td></tr>
+    <tr><td>Movement Phase</td><td>the game file, when one of your aircraft moves</td><td>its move (Maneuver tab), its attacks if you want (Combat tab)</td><td>the game file to the next player (the page names him)</td></tr>
+    <tr><td>Combat orders (if asked)</td><td>the game file from the referee</td><td>confirm, change or cancel your attacks: fixed guns, defensive fire, jettison (Combat tab)</td><td>your <b>combat orders</b> file to the referee</td></tr>
+  </tbody>
+</table>
+
+<h2 id="turn">A game turn</h2>
+<p>Each game turn has three phases (8.0): initiative, movement, combat. In the multiplayer game:</p>
+<ol>
+  <li>every player declares the tailing of his aircraft; the referee rolls the initiative and sends the game file;</li>
+  <li>the game file goes from player to player in the order of movement; each one moves his aircraft and may declare its attacks;</li>
+  <li>the referee may ask for combat orders, then resolves defensive fire, the fixed gun attacks, the jettisons and the end of turn checks, and starts the next turn.</li>
+</ol>
+
+<h2 id="dec">1. Initiative declarations</h2>
+<p>Open the <b>Initiative</b> tab. For each of your aircraft:</p>
+<ul>
+  <li><b>Tails</b>: the aircraft it tails, if any (8.1.1). The list marks with ✓ the aircraft that can be tailed now (simple test or deflection test); otherwise the page says what is missing. A tailing aircraft moves just after the aircraft it tails.</li>
+  <li><b>Formation</b>: the page checks your aircraft against its leader: fixed formation 2-1-3 (junior leaders 3-3-3) or flexible formation 6-6-6 (junior leaders 9-9-9), rule 8.5.
+    A fixed formation moves together, first of all (class X). A flexible wingman may use his leader's initiative if it is higher: untick <b>follow</b> to keep his own.</li>
+</ul>
+<p>Then click <b class="btn">Send my orders</b> and send the file to the referee.</p>
+<p class="note">Order of movement (8.1): fixed formations, then H and M class, then F and L class by load (overloaded first, then loaded L, then the others), and unsighted aircraft last; out-of-control aircraft first in their group.
+Initiative modifiers: Recruit −4, Green −2, Veteran, Ace, Hero +1 each, hero leader +1, severe damage −1, oil on canopy −2, own hero or ace shot down −1, enemy shot down in the last two turns +2. The lowest initiative moves first.</p>
+
+<h2 id="mph">2. Your move</h2>
+<p>When the game file arrives with one of your aircraft to move, import it: the bar shows <b>Moving: your aircraft</b>. Select it (the chips under the tabs show the order of movement) and open the <b>Maneuver</b> tab.</p>
+<h3>Start of the move</h3>
+<ul>
+  <li><b>Power</b> (4.1): Military (max or more than 1/3), Emergency (the number after the slash on the card), Cruise (1/3 or less) or Idle (start speed −0.5). Loads, damage and cruise lower the max attainable speed.</li>
+  <li><b>Transition</b> (6.1): stay in your attitude, or choose a <b>pull</b> (nose up for the pilot) or <b>push</b> (nose down) transition from the FATT. Each entry shows its rate, its steps, the end attitude and its FP code, for example
+    <code>Pull HT 2 → ISTC: 2/3V to All -1V RV after 2/3-</code>. Entries your speed does not allow are greyed with the reason. « RV » = mandatory reversal, « NG » = negative G.</li>
+  <li><b>OC</b>: the optional altitude change at the end of the move (6.1.3); <b>End of move</b>: optional reverse in vertical flight (6.4) or the free HFP of pure vertical flight.</li>
+</ul>
+<p>The page shows the FPs to play (a carried half FP joins a new one), the VFPs allowed by the transition or by the Standard Altitude Change Table, the mandatory change (MC), the banking and side slip FPs and the turn rates you may use at your speed.</p>
+<h3>The lines of the move</h3>
+<p>Click <b class="btn">Add line</b>. Each line is a number of HFPs and VFPs with one action, done at the end of the line:</p>
+<table>
+  <thead><tr><th>Action</th><th>Rules</th></tr></thead>
+  <tbody>
+    <tr><td>Fly straight</td><td>3.5</td></tr>
+    <tr><td>Roll left / right (six bank angles: LV, RB, IR, IV, IL, LB), snap roll (one FP less, 3 decel). In vertical flight, a finished roll may change the facing (vertical roll).</td><td>5.1, 5.3, 7.0</td></tr>
+    <tr><td>Turn, with its rate and the facing change; NG turn (away from the bank, regular and veteran pilots)</td><td>5.2, 5.9</td></tr>
+    <tr><td>Slip, skid, skid with facing (set-up), then Execute (1 HFP)</td><td>5.4</td></tr>
+    <tr><td>Reversal (when the FATT code says « RV », no FP) ; Free facing after a transition through steep or vertical attitudes (no FP)</td><td>6.4, 6.6</td></tr>
+  </tbody>
+</table>
+<p>Each line shows its notation and the hex reached. On the map, the planned path is drawn in dots. Problems are written in red: fix them before going on.
+At the bottom, the page adds up the accel and decel points and shows the <b>End Line</b>: position, speed and carries at the end of the move.</p>
+<h3>Stall, spin, dangerous dive, compressibility</h3>
+<p>When a check is needed, a button appears at the top of the move: stall / spin (% ≥ 60 spins), spin recovery (≤ 50), dangerous dive (≥ 95 destroys), compressibility (≥ 60). The page rolls, with the modifiers shown, and flies the stall or spin move itself. All rolls are kept in <b>Game › Dice rolls</b>.</p>
+<h3>Finish</h3>
+<ol>
+  <li>Click <b class="btn">Apply end of turn</b>. If you used ET or NG BT rates (or BT with structural damage), the page rolls the overstress and black-out / red-out checks (5.6, 5.7). <b class="btn">Undo apply</b> goes back if you made a mistake.</li>
+  <li>If you want, declare your attacks now (next section).</li>
+  <li>Click <b class="btn">Done: pass to next aircraft</b> in the bar: the page saves the game file for the next player. Send it.</li>
+</ol>
+
+<h2 id="cb">3. Your attacks</h2>
+<p>Open the <b>Combat</b> tab with your aircraft selected.</p>
+<ul>
+  <li><b>Fixed guns</b>: choose the <b>target</b> (✓ = in your fields of fire), the <b>gun groups</b>, the burst (normal, half, long) and tick <b>Tracking shot</b> if allowed (10.1).
+    The page shows the whole shot as it will be posted (range, deflection, odds, LH modifiers) and your chance to hit. Click <b class="btn">Declare attack</b>.</li>
+  <li><b>Defensive fire</b> (bombers with rear gunners, 10.5): choose the target and the gunners of your formation that can fire, then <b class="btn">Declare defensive fire</b>.</li>
+  <li><b>Stores</b>: <b class="btn">Declare jettison</b> drops your bombs in the Combat Phase (12.0).</li>
+</ul>
+<p>The referee resolves defensive fire first, then the fixed gun attacks, then the jettisons. If he asks for combat orders, change or cancel your attacks (a target may have moved after you), then <b class="btn">Send my orders</b>.</p>
+
+<h2 id="tips">Good to know</h2>
+<ul>
+  <li><b>Save at the end of each phase</b>: keep every game file you receive and send. If something goes wrong, the game can be taken up again from the last file.</li>
+  <li>The <b>Log</b> tab shows your moves and shots in the PBEM format, ready to copy into an email.</li>
+  <li>The <b>ADC</b> tab shows your aircraft's data card, with the line of its altitude band and the column of its speed highlighted.</li>
+  <li>The camera bar on the map: <b>Overview</b>, <b>3D view</b>, <b>Top</b>, <b>Center</b>, and the aircraft models (Minibox or counters). North is up. Wheel: zoom; drag: turn the view; right-drag: move it.</li>
+  <li><b>Readable text</b> (top of the panel) makes the figures larger and easier to tell apart.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# Documents du jeu et tout ce qui en est tiré (cartes, pions, fiches, Minibox, page construite, parties) :
+# protégés par le droit d'auteur, jamais dans le dépôt.
+Documents originaux/
+Application/build/
+Application/scenarios/
+
+# Python
+__pycache__/
+*.pyc

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fighting Wings Referee Manual</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<p class="eyebrow">Fighting Wings · Flight Table</p>
+<h1>Referee manual</h1>
+<p class="lede">How to set up and run a multiplayer (play by email) game with the page. Read the player manual first: the players' part of each step is described there.</p>
+
+<nav class="toc" aria-label="Contents">
+  <a href="#setup">Setting up the game</a><a href="#dec">1. Declarations and initiative</a><a href="#mph">2. Movement Phase</a>
+  <a href="#cph">3. Combat Phase and end of turn</a><a href="#vp">Victory points</a><a href="#fix">Fixing a mistake</a><a href="#tips">Good to know</a>
+</nav>
+
+<h2 id="setup">Setting up the game</h2>
+<ol>
+  <li><b>Game › Scenarios</b>: start the scenario (click <b class="btn">Start scenario</b> twice), or set up the aircraft in the <b>Aircraft</b> tab: data card, counter, pilot quality, ace, hero, crack shot,
+    formation leader and, on each leader, the formation type (fixed or flexible) and « no radio »; then the position line of each aircraft (for example
+    <code>D3A2 #1 (Tapper), 2735, SE, 14.0, 5.0+, LV, 0.0, LVL, [loaded]</code>), or <b>Paste position lines</b>.</li>
+  <li><b>Scenario</b> tab: name, game length, special rules, map and its base altitude.</li>
+  <li><b>Game › Multiplayer (PBEM)</b>: tick <b>Multiplayer game</b>; write the <b>Players</b> (your name included), choose the <b>Referee</b> (you), set <b>This copy is played by</b> to your name, and choose who flies each aircraft (<b>Flown by</b>).</li>
+  <li>Send the game folder (the page with its <code>maps</code>, <code>counters</code> and <code>boxes</code> folders) to the players, then the first game file: <b class="btn">Send game file to players</b> in the bar.</li>
+</ol>
+
+<h2 id="dec">1. Declarations and initiative</h2>
+<p>The bar shows <b>Initiative declarations — players</b> and the players whose orders have not arrived yet.</p>
+<ol>
+  <li>When the players' declarations files arrive, click <b class="btn">Import orders…</b> and choose them (several at once if you like). The page checks that each file belongs to this game, this turn and this step, and takes only the orders of each player's own aircraft.</li>
+  <li>Check the <b>Initiative</b> tab: tailing (✓ = allowed now, else the missing condition is written in red), formations in their parameters, out-of-control and unsighted aircraft.</li>
+  <li>Click <b class="btn">Roll initiative and start the moves</b>. The page rolls each aircraft's D10 with its modifiers, breaks the ties, rolls the side rolls (fixed formations, H, M, out-of-control aircraft) and makes the order of movement (8.1).
+    The state at the roll (out of control, unsighted, fixed formation) is kept for the whole turn. It then saves the game file for the player of the first aircraft.</li>
+</ol>
+
+<h2 id="mph">2. Movement Phase</h2>
+<p>The game file goes from player to player in the order of movement; when two aircraft in a row are flown by the same player, there is no new file. You may move an aircraft yourself (a player who cannot answer, an aircraft flown by the referee): select it when it is its turn, plot and apply its move, then <b class="btn">Done: pass to next aircraft</b>.
+When the last aircraft has moved, the file comes back to you and the bar shows <b>Combat Phase — referee</b>.</p>
+
+<h2 id="cph">3. Combat Phase and end of turn</h2>
+<ol>
+  <li>If a player should be able to change his attacks after seeing the final positions, click <b class="btn">Request combat orders</b>: the page saves a game file for the players; import their <b>combat orders</b> with <b class="btn">Import orders…</b>.</li>
+  <li>Click <b class="btn">Resolve declared attacks</b>. In the order of the Combat Phase (8.3): declared defensive fire, then the fixed gun attacks in the order of movement (an aircraft shot down in this phase still fires), then the jettisons.
+    An attack that is no longer possible is cancelled and said so. Each shot is written in the PBEM format in the shooter's Log and in <b>Combat › Shots this turn</b>: range, deflection, odds, LH modifiers, roll, hits, critical hits and their effects, ammunition.</li>
+  <li>You can also fire an attack yourself in the <b>Combat</b> tab: <b class="btn">Fire (%)</b>, <b class="btn">Defensive fire (%)</b>, <b class="btn">Jettison stores</b>.
+    A head-on attack inside the collision risk range asks the pilot's determination roll; the danger zone after it is to be watched on the map.</li>
+  <li><b>End of turn checks</b> (Combat tab): fire progress, oil or coolant leaks, recharge of jammed defensive guns, collisions (unsafe stacks, range 0 attacks without tailing; % ≥ 85). Click <b class="btn">Roll</b> for each one.</li>
+  <li>Click <b class="btn">Next game turn</b>: the page saves the game file for the players, and the new turn starts with the declarations.</li>
+</ol>
+<p class="note">Damage, severe damage, critical hits (engine, fuel, cockpit and crew, wings, equipment, flight controls), lost guns, wounded crew, reloading guns and the +2 initiative after a kill are kept by the page and applied in the next turns (flight limits, shot modifiers, initiative).</p>
+
+<h2 id="vp">Victory points</h2>
+<p><b>Game › Victory points</b> adds up the points so far. The scenario booklet is not in the game folder: the page assumes that an aircraft shot down gives the second « Victory Points » number of its data card, a severely damaged one the first,
+and a pilot killed his crew VP (13.2). The scenario's own bonus is added (Jolly Rogers: +1 to the Japanese for each Val still carrying its bomb). Check against the scenario booklet.</p>
+
+<h2 id="fix">Fixing a mistake</h2>
+<ul>
+  <li>A move applied by mistake: select the aircraft, <b>Maneuver › Undo apply</b>.</li>
+  <li>A position to correct: <b>Aircraft</b> tab, edit the position line and press Enter.</li>
+  <li>An aircraft removed from play by mistake: <b>Aircraft</b> tab, <b class="btn">Back in play</b>.</li>
+  <li>Going back to an earlier phase: <b class="btn">Import game file…</b> with the file saved at the end of that phase.</li>
+</ul>
+
+<h2 id="tips">Good to know</h2>
+<ul>
+  <li><b>Save at the end of each phase</b> and keep every file received and sent.</li>
+  <li><b>Game › Dice rolls</b> lists every roll of the game (turn, aircraft, what was rolled): the players can check them.</li>
+  <li>The player who receives a file is named in the file name: <code>&lt;scenario&gt; - GT3 - MPH - to Kent.json</code>.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<title>Fighting Wings Digital Flight Table</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&family=Atkinson+Hyperlegible+Mono:wght@400;600;700&display=swap">
+<style>
+<!-- @include style.css -->
+</style>
+
+<!-- @include body.html -->
+
+<script>
+window.__twdErrors = [];
+window.addEventListener("error", function (e) { window.__twdErrors.push(e.message + " @" + e.lineno + ":" + e.colno); });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const MAPS = <!-- @maps -->;          // cartes dont l'image existe dans maps/ (à côté de la page)
+const COUNTER_IMGS = <!-- @counters -->; // pions dont l'image existe dans counters/ (à côté de la page)
+const BOXES = <!-- @boxes -->;        // fiches (ADC) dont la Minibox existe dans boxes/ (à côté de la page)
+</script>
+<script>
+<!-- @data adc.js -->
+<!-- @data counters.js -->
+<!-- @scenarios -->
+</script>
+<script>
+(function twdMain() {
+<!-- @include js/*.js -->
+})();
+</script>
