@@ -12,7 +12,10 @@ Modifier uniquement `Application/src/` et `Application/tools/`, puis lancer `pyt
 Après chaque modification, vérifier la page dans le navigateur (config « dist » de .claude/launch.json, port 8822, sert
 `Application/build/dist/` ; pas d'erreur dans la console, `window.__twdErrors` vide).
 Les documents du jeu, les parties (`scenarios/`) et tout `build/` sont protégés par le droit d'auteur : jamais dans un dépôt public.
-Pas de Git pour l'instant.
+**Git (depuis le 15/11/2026)** : dépôt à la racine, branche `main`, distant https://github.com/xavnl/FightingWings_Digital.git
+(lisible sans identifiant : à traiter comme public). `.gitignore` exclut `Documents originaux/`, `Application/build/`,
+`Application/scenarios/`. Auteur des commits (config du dépôt) : xavnl, xavnl@users.noreply.github.com. Commit / push seulement
+sur demande de l'utilisateur ; avant chaque commit, vérifier `git status` : aucun PDF, image, .vmod ni fichier de partie.
 
 ## Projet (démarré le 15/11/2026)
 
